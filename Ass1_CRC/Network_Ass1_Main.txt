@@ -1,0 +1,141 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+string XOR(string x,string y) 
+{
+	string result="";
+	if (x.length() == y.length())
+	{
+	  for (int i=0; i < x.length();i++)
+	  {
+		  if(x[i]==y[i])
+		  { result += '0'; }
+		  else
+		  { result += '1'; }
+	  }
+	}
+	return result;
+}
+
+string Alter( string msg ,  int bit_no )
+ {
+	 if( bit_no <= msg.length() )
+	 {
+	   msg[bit_no-1] ^= 1;
+	   return msg;
+	 }
+ }
+
+ string Generator_Fn (ifstream  &Input_File , ofstream & OutPut_File ,string &Generator)
+{
+	string msg ;
+	getline(Input_File,msg) ;
+	getline(Input_File,Generator);
+	Input_File.close();
+
+	string msg_f = msg ;
+	string CRC ; string temp ; string ZeroG ="" ;
+
+	for (int i = 0 ; i < Generator.length() - 1 ; i++)
+	{
+		msg += "0";
+		temp += msg[i];
+		ZeroG += "0";
+	}
+	ZeroG += "0";
+
+	for (int i = Generator.length() - 1 ; i < msg.length() ; i++)
+	{
+		 temp += msg[i];
+		 
+		 if (temp[0] == '1')
+		 {	
+			 //divide by generator 
+			 string result = XOR(temp,Generator);
+			 temp = "";
+			 for (int x = 1 ; x < Generator.length() ; x++)
+			 { temp += result[x]; } 	
+		 }
+
+		 else if (temp[0] == '0')
+		 {
+			 //divide by Zeros 
+			 string result = XOR(temp,ZeroG);
+			 temp = "";
+			 for (int x = 1 ; x < Generator.length() ; x++)
+			 { temp += result[x]; } 		 
+		 } 
+	}
+	
+	CRC = temp;
+	OutPut_File << msg_f + CRC;
+	OutPut_File.close();
+	return msg_f + CRC;
+}
+
+int main()
+{
+	string transimtted_msg ;
+	string Command;
+	string Generator ;
+	int bit_no;
+	bool Found =false;
+		
+	ofstream OutPut_File("transmitted_message.txt");
+	while(1)
+	{
+		ifstream Input_File("message_generator.txt");
+
+		getline(cin,Command);
+
+		if(Command=="Exit")
+		{ break; }
+
+		for (int i =0 ; i < Command.length(); i++ )
+		{
+			Generator="";
+			if(Command[i] == 'a' && Command[i+1] == 'l' && Command[i+2] == 't' && Command[i+3] == 'e' && Command[i+4]== 'r')
+			{
+				for (int j = i + 4 ; j < Command.length() ; j++ )
+				{
+					if (Command[j] > 47 && Command[j] < 58 )
+					{
+						Found = true;
+						bit_no = Command[j] - '0';	
+					}
+					if(Found)
+					{
+						Found = false;
+						break;
+					}
+				}
+				transimtted_msg = Generator_Fn(Input_File , OutPut_File , Generator);
+				cout <<"transmitted_message.txt --> "<< transimtted_msg<< endl ;
+
+				transimtted_msg = Alter(transimtted_msg  ,bit_no);
+				cout <<"Altered_message.txt --> "<< transimtted_msg<< endl ;
+
+				Verifier(Generator,transimtted_msg);
+				Found = true;
+			}
+			if(Command[i] == 'v' && Command[i+1] == 'e'&& Command[i+2] == 'r' && Command[i+3] == 'i' && Command[i+4] == 'f')
+			{
+				transimtted_msg = Generator_Fn(Input_File , OutPut_File , Generator);
+				cout <<"transmitted_message.txt --> "<< transimtted_msg<< endl ;
+
+				Verifier(Generator,transimtted_msg);
+				Found = true;
+			}
+			if(Found)
+			{
+				Found = false;
+				break;
+			}
+		}
+	}
+
+  return 0;
+}
