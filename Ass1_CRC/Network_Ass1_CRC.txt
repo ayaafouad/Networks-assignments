@@ -3,48 +3,7 @@
 #include <string>
 
 using namespace std;
-void verifier(string transimtted_msg , string Generator )
-{
-	string temp , ZeroG ;
-	string result;
-		for (int i =0;i<Generator.length()-1;i++)
-	{
-		temp += transimtted_msg[i];
-		ZeroG += "0";
-	}
-		ZeroG += "0";
 
-	for (int i = Generator.length()-1; i<transimtted_msg.length();i++)
-	{
-		 temp += transimtted_msg[i];
-		 
-		 if (temp[0]=='1')
-		 {	
-			 //divide by generator 
-			 string result = XOR(temp,Generator);
-			 temp = "";
-			 for (int x =1;x<Generator.length();x++)
-			 { temp += result[x]; } 	
-		 }
-
-		 else if (temp[0]=='0')
-		 {
-			 //divide by Zeros 
-			 string result = XOR(temp,ZeroG);
-			 temp = "";
-			 for (int x =1;x<Generator.length();x++)
-			 { temp += result[x]; } 		 
-		 } 
-	}
-
-	if (stoi(result) == 0)
-	{  cout<< "correct" << endl; }
-
-	else
-	{ cout<<"wrong"<<endl; }
-
-	
-}
 string XOR(string x,string y) 
 {
 	string result="";
@@ -61,7 +20,6 @@ string XOR(string x,string y)
 	return result;
 }
 
-
 string Alter( string msg ,  int bit_no )
  {
 	 if( bit_no <= msg.length() )
@@ -71,8 +29,7 @@ string Alter( string msg ,  int bit_no )
 	 }
  }
 
-
-string Generator_Fn (ifstream  &Input_File , ofstream & OutPut_File ,string &Generator)
+ string Generator_Fn (ifstream  &Input_File , ofstream & OutPut_File ,string &Generator)
 {
 	string msg ;
 	getline(Input_File,msg) ;
@@ -118,6 +75,46 @@ string Generator_Fn (ifstream  &Input_File , ofstream & OutPut_File ,string &Gen
 	OutPut_File.close();
 	return msg_f + CRC;
 }
+
+ void Verifier(string Generator,string msg)
+ {
+	 string temp;
+	 string ZeroG;
+
+	 for (int i = 0 ; i < Generator.length() ; i++)
+	 {
+		temp += msg[i];
+		ZeroG += "0";
+	 }
+
+	 for (int i = 0 ; i < msg.length() ; i++)
+	 {	 
+		 if (temp[0] == '1')
+		 {	
+			 //divide by generator 
+			 string result = XOR(temp,Generator);
+			 temp = "";
+			 for (int x = 1 ; x < Generator.length() ; x++)
+			 { temp += result[x]; } 	
+		 }
+
+		 else if (temp[0] == '0')
+		 {
+			 //divide by Zeros
+			 string result = XOR(temp,ZeroG);
+			 temp = "";
+			 for (int x = 1 ; x < Generator.length() ; x++)
+			 { temp += result[x]; } 		 
+		 }
+		 temp += msg[i];
+	 }
+
+	 if (stoi(temp) == 0)
+	 {  cout <<"Message --> message is correct"<<endl; }
+	 else 
+	 { cout <<"Message --> message is not correct"<<endl; }
+ }
+
 int main()
 {
 	string transimtted_msg ;
