@@ -19,7 +19,16 @@ string XOR(string x,string y)
 	}
 	return result;
 }
-[
+
+
+string Alter( string msg ,  int bit_no )
+ {
+	 if( bit_no <= msg.length() )
+	 {
+	   msg[bit_no-1] ^= 1;
+	   return msg;
+	 }
+ }
 
 
 string Generator_Fn (ifstream  &Input_File , ofstream & OutPut_File ,string &Generator)
